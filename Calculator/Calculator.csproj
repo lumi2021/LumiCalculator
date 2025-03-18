@@ -17,4 +17,10 @@
     <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
