@@ -3,10 +3,11 @@ using System.Text;
 using ImGuiNET;
 using Calculator;
 using System.Text.RegularExpressions;
+using Calculator.Exceptions;
 
 namespace Calculator.Screens;
 
-public static class Standard
+public static partial class Standard
 {
 
     private static List<string> expressionTokens = [];
@@ -176,6 +177,41 @@ public static class Standard
     private static void ResolveExpression()
     {
         var tokens = new Queue<string>(expressionTokens);
+
+        try {  }
+        catch (MathException)   { entryBuilder.Clear(); entryBuilder.Append("= Math Error"); }
+        catch (SyntaxException) { entryBuilder.Clear(); entryBuilder.Append("= Syntax Error"); }
+
+        showingResult = true;
     }
 
+
+    private static Number RecursiveResolve_Level3(Queue<string> tokens)
+    {
+
+    }
+
+    private static Number RecursiveResolve_Level2(Queue<string> tokens)
+    {
+
+    }
+
+    private static Number RecursiveResolve_Level1(Queue<string> tokens)
+    {
+        var exp = RecursiveResolve_Level0(tokens);
+
+        if (tokens.Peek() == "+") exp = RecursiveResolve_Level1(tokens);
+        else if (tokens.Peek() == "-") exp = RecursiveResolve_Level1(tokens);
+
+        return exp;
+    }
+
+    private static Number RecursiveResolve_Level0(Queue<string> tokens)
+    {
+        if (NumericPattern().IsMatch(tokens.Peek())) throw new SyntaxException();
+        return new Number(tokens.Pop());
+    }
+
+    [GeneratedRegex(@"^[0-9.]+$")]
+    private static partial Regex NumericPattern();
 }

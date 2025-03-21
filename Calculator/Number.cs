@@ -7,11 +7,7 @@ public struct Number
     private string _mantissa;
     private int _exponent;
 
-    public Number(string mantissa, int exponent)
-    {
-        _mantissa = mantissa;
-        _exponent = exponent;
-    }
+
     public Number(string number)
     {
         var sb = new StringBuilder();
@@ -20,7 +16,14 @@ public struct Number
             if (number[i] == '.') _exponent = i;
             else sb.Append(number[i]);
         }
+        _mantissa = sb.ToString();
     }
+    public Number(string mantissa, int exponent)
+    {
+        _mantissa = mantissa;
+        _exponent = exponent;
+    }
+
 
     public override string ToString()
     {
