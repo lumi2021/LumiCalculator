@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Text;
 using ImGuiNET;
-using Calculator;
 using System.Text.RegularExpressions;
 using Calculator.Exceptions;
 
@@ -178,9 +177,12 @@ public static partial class Standard
     {
         var tokens = new Queue<string>(expressionTokens);
 
-        try {  }
-        catch (MathException)   { entryBuilder.Clear(); entryBuilder.Append("= Math Error"); }
-        catch (SyntaxException) { entryBuilder.Clear(); entryBuilder.Append("= Syntax Error"); }
+        try {
+            var res = RecursiveResolve_Level3(tokens);
+            entryBuilder.Append($"= {res}");
+        }
+        catch (MathException)   { entryBuilder.Append("= Math Error"); }
+        catch (SyntaxException) { entryBuilder.Append("= Syntax Error"); }
 
         showingResult = true;
     }
@@ -188,28 +190,59 @@ public static partial class Standard
 
     private static Number RecursiveResolve_Level3(Queue<string> tokens)
     {
+        var exp = RecursiveResolve_Level2(tokens);
 
+
+        return exp;
     }
 
     private static Number RecursiveResolve_Level2(Queue<string> tokens)
     {
+        var exp = RecursiveResolve_Level1(tokens);
 
+        if (tokens.Count > 1)
+        {
+            if (tokens.Peek() == "*")
+            {
+                tokens.Dequeue();
+                exp = exp.Mul(RecursiveResolve_Level1(tokens));
+            }
+            else if (tokens.Peek() == "/")
+            {
+                tokens.Dequeue();
+                exp = exp.Div(RecursiveResolve_Level1(tokens));
+            }
+        }
+
+        return exp;
     }
 
     private static Number RecursiveResolve_Level1(Queue<string> tokens)
     {
         var exp = RecursiveResolve_Level0(tokens);
 
-        if (tokens.Peek() == "+") exp = RecursiveResolve_Level1(tokens);
-        else if (tokens.Peek() == "-") exp = RecursiveResolve_Level1(tokens);
+        if (tokens.Count > 1)
+        {
+            if (tokens.Peek() == "+")
+            {
+                tokens.Dequeue();
+                exp = exp.Add(RecursiveResolve_Level1(tokens));
+            }
+            else if (tokens.Peek() == "-")
+            {
+                tokens.Dequeue();
+                exp = exp.Sub(RecursiveResolve_Level1(tokens));
+            }
+        }
 
         return exp;
     }
 
     private static Number RecursiveResolve_Level0(Queue<string> tokens)
     {
-        if (NumericPattern().IsMatch(tokens.Peek())) throw new SyntaxException();
-        return new Number(tokens.Pop());
+        if (tokens.Count == 0) throw new SyntaxException();
+        if (!NumericPattern().IsMatch(tokens.Peek())) throw new SyntaxException();
+        return Number.Parse(tokens.Dequeue());
     }
 
     [GeneratedRegex(@"^[0-9.]+$")]
