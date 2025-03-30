@@ -6,7 +6,7 @@ using Calculator.Exceptions;
 
 namespace Calculator.Screens;
 
-public static partial class Standard
+public static partial class Programmer
 {
 
     private static List<string> expressionTokens = [];
@@ -39,27 +39,29 @@ public static partial class Standard
         var padding = ImGui.GetStyle().WindowPadding;
         var spacing = ImGui.GetStyle().ItemInnerSpacing;
 
-        var buttonSizeX = (ImGui.GetContentRegionAvail().X - padding.X * 2 - spacing.X * 3) / 4;
+        var buttonSizeX = (ImGui.GetContentRegionAvail().X - padding.X * 2 - spacing.X * 4) / 5;
         var buttonSizeY = (ImGui.GetContentRegionAvail().Y - spacing.Y * 5) / 6;
 
         ImGui.PushFont(Program.fontBig);
 
 
+        if (ImGui.Button("A", new(buttonSizeX, buttonSizeY))) RegisterValue("A"); ImGui.SameLine();
         PushButtonStyles();
-
-        if (ImGui.Button("%", new(buttonSizeX, buttonSizeY))) RegisterValue("%"); ImGui.SameLine();
-        if (ImGui.Button("CE", new(buttonSizeX, buttonSizeY))) RegisterValue("ClearEntry"); ImGui.SameLine();
-        if (ImGui.Button("C", new(buttonSizeX, buttonSizeY))) RegisterValue("Clear"); ImGui.SameLine();
+        if (ImGui.Button("<<", new(buttonSizeX, buttonSizeY))) RegisterValue("shl"); ImGui.SameLine();
+        if (ImGui.Button(">>", new(buttonSizeX, buttonSizeY))) RegisterValue("shr"); ImGui.SameLine();
+        if (ImGui.Button("C", new(buttonSizeX, buttonSizeY))) RegisterValue("clear"); ImGui.SameLine();
         if (ImGui.Button("BS", new(buttonSizeX, buttonSizeY))) RegisterValue("Backspace");
-
-
-        if (ImGui.Button("1/x", new(buttonSizeX, buttonSizeY))) RegisterValue("1/"); ImGui.SameLine();
-        if (ImGui.Button("^", new(buttonSizeX, buttonSizeY))) RegisterValue("**"); ImGui.SameLine();
-        if (ImGui.Button("sqrt", new(buttonSizeX, buttonSizeY))) RegisterValue("//"); ImGui.SameLine();
-        if (ImGui.Button("÷", new(buttonSizeX, buttonSizeY))) RegisterValue("÷");
-
         ImGui.PopStyleColor(3);
 
+        if (ImGui.Button("B", new(buttonSizeX, buttonSizeY))) RegisterValue("B"); ImGui.SameLine();
+        PushButtonStyles();
+        if (ImGui.Button("(", new(buttonSizeX, buttonSizeY))) RegisterValue("("); ImGui.SameLine();
+        if (ImGui.Button(")", new(buttonSizeX, buttonSizeY))) RegisterValue(")"); ImGui.SameLine();
+        if (ImGui.Button("%", new(buttonSizeX, buttonSizeY))) RegisterValue("%"); ImGui.SameLine();
+        if (ImGui.Button("÷", new(buttonSizeX, buttonSizeY))) RegisterValue("÷");
+        ImGui.PopStyleColor(3);
+
+        if (ImGui.Button("C", new(buttonSizeX, buttonSizeY))) RegisterValue("C"); ImGui.SameLine();
         if (ImGui.Button("7", new(buttonSizeX, buttonSizeY))) RegisterValue("7"); ImGui.SameLine();
         if (ImGui.Button("8", new(buttonSizeX, buttonSizeY))) RegisterValue("8"); ImGui.SameLine();
         if (ImGui.Button("9", new(buttonSizeX, buttonSizeY))) RegisterValue("9"); ImGui.SameLine();
@@ -67,6 +69,7 @@ public static partial class Standard
         if (ImGui.Button("×", new(buttonSizeX, buttonSizeY))) RegisterValue("*");
         ImGui.PopStyleColor(3);
 
+        if (ImGui.Button("D", new(buttonSizeX, buttonSizeY))) RegisterValue("4"); ImGui.SameLine();
         if (ImGui.Button("4", new(buttonSizeX, buttonSizeY))) RegisterValue("4"); ImGui.SameLine();
         if (ImGui.Button("5", new(buttonSizeX, buttonSizeY))) RegisterValue("5"); ImGui.SameLine();
         if (ImGui.Button("6", new(buttonSizeX, buttonSizeY))) RegisterValue("6"); ImGui.SameLine();
@@ -74,6 +77,7 @@ public static partial class Standard
         if (ImGui.Button("-", new(buttonSizeX, buttonSizeY))) RegisterValue("-");
         ImGui.PopStyleColor(3);
 
+        if (ImGui.Button("E", new(buttonSizeX, buttonSizeY))) RegisterValue("1"); ImGui.SameLine();
         if (ImGui.Button("1", new(buttonSizeX, buttonSizeY))) RegisterValue("1"); ImGui.SameLine();
         if (ImGui.Button("2", new(buttonSizeX, buttonSizeY))) RegisterValue("2"); ImGui.SameLine();
         if (ImGui.Button("3", new(buttonSizeX, buttonSizeY))) RegisterValue("3"); ImGui.SameLine();
@@ -81,9 +85,11 @@ public static partial class Standard
         if (ImGui.Button("+", new(buttonSizeX, buttonSizeY))) RegisterValue("+");
         ImGui.PopStyleColor(3);
 
+        if (ImGui.Button("F", new(buttonSizeX, buttonSizeY))) RegisterValue("00"); ImGui.SameLine();
         if (ImGui.Button("00", new(buttonSizeX, buttonSizeY))) RegisterValue("00"); ImGui.SameLine();
         if (ImGui.Button("0", new(buttonSizeX, buttonSizeY))) RegisterValue("0"); ImGui.SameLine();
         if (ImGui.Button(".", new(buttonSizeX, buttonSizeY))) RegisterValue("."); ImGui.SameLine();
+
         PushButtonStyles();
         if (ImGui.Button("=", new(buttonSizeX, buttonSizeY))) RegisterValue("=");
         ImGui.PopStyleColor(3);
@@ -122,8 +128,12 @@ public static partial class Standard
                 if (entryBuilder.Length > 0) entryBuilder.Length--;
                 break;
 
+            case "shl" or "shr":
+                TokenizeEntry();
+                AppendToken(c);
+                break;
 
-            case "+" or "-" or "*" or "÷" or "1/" or "%":
+            case "+" or "-" or "*" or "/" or "1/" or "%":
                 TokenizeEntry();
                 AppendToken(c);
                 break;

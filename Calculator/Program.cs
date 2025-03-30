@@ -9,6 +9,8 @@ using Silk.NET.GLFW;
 using System.Numerics;
 using MouseButton = Silk.NET.Input.MouseButton;
 using Calculator.Screens;
+using Silk.NET.Core;
+using System.Buffers.Binary;
 
 internal class Program
 {
@@ -25,8 +27,10 @@ internal class Program
     private static bool _holdingHeader = false;
     private static Vector2D<int> _cursorOffset = new(0, 0);
 
-    private static readonly (string name, Action<double> update)[] _screens = [
-        ( "Standard", Standard.Update )
+    public static readonly (string name, Action<double> update)[] _screens = [
+        ( "Standard", Standard.Update ),
+        ( "Scientific", Scientific.Update ),
+        ( "Programmer", Programmer.Update ),
     ];
     private static int _currentScreen = 0;
 
@@ -70,6 +74,14 @@ internal class Program
 
     private static unsafe void OnLoad()
     {
+        // loading window icon
+        var iconBin = File.ReadAllBytes("icon.bm");
+        var icon = new RawImage(
+            BinaryPrimitives.ReadInt32BigEndian(iconBin.AsSpan(1, 4)),
+            BinaryPrimitives.ReadInt32BigEndian(iconBin.AsSpan(5, 4)),
+            iconBin.AsMemory(8));
+        window.SetWindowIcon([icon]);
+
         gl = window.CreateOpenGL();
         glfw = GlfwProvider.GLFW.Value;
         input = window.CreateInput();
@@ -151,6 +163,7 @@ internal class Program
         ImGui.Begin("calculator_window", dockSpaceFlags);
         HandleWindow();
 
+        Generic.Update(delta);
         _screens[_currentScreen].update(delta);
 
         ImGui.End();
@@ -277,6 +290,10 @@ internal class Program
     {
         if (_cursor == StandardCursor.Default || cursor == StandardCursor.Default) _cursor = cursor;
     }
+
+
+    public static void SetScreen(int index) => _currentScreen = index;
+    public static string GetScreenName() => _screens[_currentScreen].name;
 }
 
 public static class Util
